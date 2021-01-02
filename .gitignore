@@ -1,8 +1,10 @@
 .vscode/
 __pycache__/
+results/
 
 .DS_Store
 Pipfile
 Pipfile.lock
 *.pyc
 output.html
+*.h5
