@@ -9,7 +9,6 @@ import cv2
 from PIL import Image
 import random
 import string
-import uiComponentDetector as det
 import os
 
 def get_button_css(button_id):
@@ -82,12 +81,10 @@ def display_result(json_data, html_page_url):
 	st.json(json_data)
 
 
-def submit_clicked(value, img_filename):
+def submit_clicked(value, img_filename, options):
 	if(value):
-		# st.success('')
 		with st.spinner(text='Submitted successfully. Processing image...'):
-			# time.sleep(5)		# Dummy waiting to indicate processing (to be replaced by actual ui component detecton pipeline)
-			
+			# UI Component Detection
 			os.system("python ./uiComponentDetector/run_single.py --img {} --op_dir ./".format(img_filename))
 
 			st.success('Completed Processing!')
@@ -111,8 +108,21 @@ def main():
 	uploaded_file = st.file_uploader("Choose a wireframe image file", type=["png", "jpg", "JPG", "jpeg"])
 	filename = imgshow(uploaded_file)
 
+	st.sidebar.title("Advanced Options")
+	options = {}
+	
+	st.sidebar.subheader("For UI Elements:")
+	options["min_grad"] = st.sidebar.slider("Gradient Threshold to produce Binary Map", min_value=1, max_value=10, value=3, step=1)
+	options["ffl_block"] = st.sidebar.slider("Fill-flood threshold", min_value=1, max_value=10, value=5, step=1)
+	options["min_ele_area"] = st.sidebar.slider("Minimum Area for Components", min_value=10, max_value=200, value=25, step=1)
+	options["merge_contained_ele"] = st.sidebar.checkbox("Merge Elements Contained in Others")
+
+	st.sidebar.subheader("For Text:")
+	options["max_word_inline_gap"] = st.sidebar.slider("Max Text Word Gap to be Same Line", min_value=1, max_value=15, value=4, step=1)
+	options["max_line_gap"] = st.sidebar.slider("Max Text Line Gap to be Same Paragraph", min_value=1, max_value=20, value=4, step=1)
+
 	submitted = st.button("Submit")
-	submit_clicked(submitted, filename)
+	submit_clicked(submitted, filename, options)
 
 
 	st.write('_Developed with ❤️ by [Rishabh](https://rishabharya.site/), [Shreya](https://laddhashreya2000.github.io) & [Tezan](https://tezansahu.github.io/)_')
