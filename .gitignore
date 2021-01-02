@@ -1,6 +1,7 @@
 .vscode/
 __pycache__/
 results/
+ip/
 
 .DS_Store
 Pipfile
@@ -8,3 +9,5 @@ Pipfile.lock
 *.pyc
 output.html
 *.h5
+temp_*
+compo.json
