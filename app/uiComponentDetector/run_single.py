@@ -18,13 +18,13 @@ parser.add_argument("--clf", action='store_true')
 parser.add_argument("--merge_contained_ele", action='store_true', help="Merge Elements Contained in Others")
 
 
-def resize_height_by_longest_edge(img_path, resize_length=800):
-    org = cv2.imread(img_path)
-    height, width = org.shape[:2]
-    if height > width:
-        return resize_length
-    else:
-        return int(resize_length * (height / width))
+# def resize_height_by_longest_edge(img_path, resize_length=800):
+#     org = cv2.imread(img_path)
+#     height, width = org.shape[:2]
+#     if height > width:
+#         return resize_length
+#     else:
+#         return int(resize_length * (height / width))
 
 
 if __name__ == '__main__':
@@ -62,7 +62,9 @@ if __name__ == '__main__':
     input_path_img = args.img
     output_root = args.op_dir
 
-    resized_height = resize_height_by_longest_edge(input_path_img)
+    # resized_height = resize_height_by_longest_edge(input_path_img)
+    img = cv2.imread(input_path_img)
+    height, _ = img.shape[:2]
 
     is_clf = args.clf
 
@@ -75,4 +77,4 @@ if __name__ == '__main__':
         from cnn.CompDetCNN import CompDetCNN
         classifier['Elements'] = CompDetCNN(cnn_type=args.cnn)
     ip.compo_detection(input_path_img, output_root, key_params,
-                        classifier=classifier, resize_by_height=resized_height, show=False)
+                        classifier=classifier, resize_by_height=height, show=False)

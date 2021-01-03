@@ -27,21 +27,20 @@ class Config:
                         'text': (80, 166, 66), 'triangle_down': (0, 66, 80), 'triangle_up': (88, 66, 0),
                         'Compo':(0, 0, 255), 'Text':(169, 255, 0), 'Block':(80, 166, 66)}
         
-        # For CNN trained on Wireframes & subset of ReDraw Dataset
+        # For CNN trained on Generalized Dataset (Wireframes & subset of ReDraw Dataset)
         elif cnn_type == "cnn-generalized":
             self.CNN_PATH = pjoin(self.project_root, "models", "cnn-generalized.h5")
 
-            self.element_class = ['checkbox', 'dash', 'div_rect', 'div_round', 'down_arrow', 'left_arrow',
-                              'leftd_arrow', 'radio', 'right_arrow', 'rightd_arrow', 'scroll', 'text',
-                              'triangle_down', 'triangle_up']
+            self.element_class = ['checkbox', 'dash', 'div_rect', 'div_round', 'down_arrow', 'image', 'left_arrow',
+                              'radio', 'right_arrow', 'scroll', 'text', 'toggle_switch', 'up_arrow']
             self.class_number = len(self.element_class)
 
             self.COLOR = {'checkbox': (0, 255, 0), 'dash': (0, 0, 255), 'div_rect': (255, 166, 166),
                         'div_round': (255, 166, 0),
-                        'down_arrow': (77, 77, 255), 'left_arrow': (255, 0, 166), 'leftd_arrow': (166, 0, 255),
+                        'down_arrow': (77, 77, 255), 'image': (166, 0, 255), 'left_arrow': (255, 0, 166),
                         'radio': (166, 166, 166),
-                        'right_arrow': (0, 166, 255), 'rightd_arrow': (0, 166, 10), 'scroll': (50, 21, 255),
-                        'text': (80, 166, 66), 'triangle_down': (0, 66, 80), 'triangle_up': (88, 66, 0),
+                        'right_arrow': (0, 166, 255), 'scroll': (50, 21, 255),
+                        'text': (80, 166, 66), 'toggle_switch': (0, 66, 80), 'up_arrow': (88, 66, 0),
                         'Compo':(0, 0, 255), 'Text':(169, 255, 0), 'Block':(80, 166, 66)}
         
         # For CNN trained on RICO Dataset
