@@ -12,7 +12,7 @@ import detect_compo.lib_ip.file_utils as file
 import detect_compo.lib_ip.block_division as blk
 import detect_compo.lib_ip.Component as Compo
 from config.CONFIG_UIED import Config
-C = Config()
+
 
 
 # def processing_block(org, binary, blocks, block_pad):
@@ -110,9 +110,10 @@ def compo_detection(input_img_path, output_root, uied_params,
 
     # *** Step 6 *** element classification: all category classification
     if classifier is not None:
+        C = Config(uied_params["cnn"])
         classifier['Elements'].predict(seg.clipping(org, uicompos), uicompos)
-        draw.draw_bounding_box_class(org, uicompos, show=show, name='cls', write_path=pjoin(ip_root, 'result.jpg'))
-        draw.draw_bounding_box_class(org, uicompos, write_path=pjoin(output_root, 'result.jpg'))
+        draw.draw_bounding_box_class(org, uicompos, color_map=C.COLOR, show=show, name='cls', write_path=pjoin(ip_root, 'result.jpg'))
+        draw.draw_bounding_box_class(org, uicompos, color_map=C.COLOR, write_path=pjoin(output_root, 'result.jpg'))
 
     Compo.compos_update(uicompos, org.shape)
     file.save_corners_json(pjoin(ip_root, name + '.json'), uicompos)

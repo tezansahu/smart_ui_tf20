@@ -1,6 +1,6 @@
 class Config:
 
-    def __init__(self):
+    def __init__(self, cnn_type="cnn-wireframes-only"):
         # Adjustable
         # self.THRESHOLD_PRE_GRADIENT = 4             # dribbble:4 rico:4 web:1
         # self.THRESHOLD_OBJ_MIN_AREA = 55            # bottom line 55 of small circle
@@ -47,13 +47,39 @@ class Config:
         #               'Noise':(6,6,255), 'Non-Noise': (6,255,6),
 
         #               'Image':(255,6,6), 'Non-Image':(6,6,255)}
-        self.CLASS_MAP = {'0':'checkbox', '1':'dash', '2':'div_rect', '3':'div_round', '4':'down_arrow', '5':'left_arrow',
-               '6':'leftd_arrow', '7':'radio', '8':'right_arrow', '9':'rightd_arrow', '10':'scroll', '11':'text',
-               '12':'triangle_down', '13':'triangle_up'}
-        self.COLOR = {'checkbox': (0, 255, 0), 'dash': (0, 0, 255), 'div_rect': (255, 166, 166),
+        # self.CLASS_MAP = {'0':'checkbox', '1':'dash', '2':'div_rect', '3':'div_round', '4':'down_arrow', '5':'left_arrow',
+        #        '6':'leftd_arrow', '7':'radio', '8':'right_arrow', '9':'rightd_arrow', '10':'scroll', '11':'text',
+        #        '12':'triangle_down', '13':'triangle_up'}
+
+        # For CNN trained on Wireframes only
+        if cnn_type == "cnn-wireframes-only":
+            self.COLOR = {'checkbox': (0, 255, 0), 'dash': (0, 0, 255), 'div_rect': (255, 166, 166),
                       'div_round': (255, 166, 0),
                       'down_arrow': (77, 77, 255), 'left_arrow': (255, 0, 166), 'leftd_arrow': (166, 0, 255),
                       'radio': (166, 166, 166),
                       'right_arrow': (0, 166, 255), 'rightd_arrow': (0, 166, 10), 'scroll': (50, 21, 255),
                       'text': (80, 166, 66), 'triangle_down': (0, 66, 80), 'triangle_up': (88, 66, 0),
                       'Compo':(0, 0, 255), 'Text':(169, 255, 0), 'Block':(80, 166, 66)}
+
+        # For CNN trained on Wireframes & subset of ReDraw Dataset
+        elif cnn_type == "cnn-generalized":
+            self.COLOR = {'checkbox': (0, 255, 0), 'dash': (0, 0, 255), 'div_rect': (255, 166, 166),
+                      'div_round': (255, 166, 0),
+                      'down_arrow': (77, 77, 255), 'left_arrow': (255, 0, 166), 'leftd_arrow': (166, 0, 255),
+                      'radio': (166, 166, 166),
+                      'right_arrow': (0, 166, 255), 'rightd_arrow': (0, 166, 10), 'scroll': (50, 21, 255),
+                      'text': (80, 166, 66), 'triangle_down': (0, 66, 80), 'triangle_up': (88, 66, 0),
+                      'Compo':(0, 0, 255), 'Text':(169, 255, 0), 'Block':(80, 166, 66)}
+
+        # For CNN trained on RICO Dataset
+        elif cnn_type == "cnn-rico":
+            self.COLOR = {'Button': (0, 255, 0), 'CheckBox': (0, 0, 255), 'Chronometer': (255, 166, 166),
+                      'EditText': (255, 166, 0),
+                      'ImageButton': (77, 77, 255), 'ImageView': (255, 0, 166), 'ProgressBar': (166, 0, 255),
+                      'RadioButton': (166, 166, 166),
+                      'RatingBar': (0, 166, 255), 'SeekBar': (0, 166, 10), 'Spinner': (50, 21, 255),
+                      'Switch': (80, 166, 66), 'ToggleButton': (0, 66, 80), 'VideoView': (88, 66, 0),
+                      'TextView': (169, 255, 0), 'NonText': (0,0,255),
+                      'Compo':(0, 0, 255), 'Text':(169, 255, 0), 'Block':(80, 166, 66)}
+        
+

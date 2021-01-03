@@ -49,12 +49,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     key_params = {
-        'min-grad':args.min_grad, 
-        'ffl-block':args.ffl_block, 
-        'min-ele-area':args.min_ele_area, 
-        'merge-contained-ele':args.merge_contained_ele,
-        'max-word-inline-gap':args.max_word_inline_gap, 
-        'max-line-gap':args.max_line_gap
+        'min-grad': args.min_grad, 
+        'ffl-block': args.ffl_block, 
+        'min-ele-area': args.min_ele_area, 
+        'merge-contained-ele': args.merge_contained_ele,
+        'max-word-inline-gap': args.max_word_inline_gap, 
+        'max-line-gap': args.max_line_gap,
+        'cnn': args.cnn
     }
 
     # set input image path
@@ -71,7 +72,7 @@ if __name__ == '__main__':
     classifier = None
     if is_clf:
         classifier = {}
-        from cnn.CNN import CNN
-        classifier['Elements'] = CNN('Elements')
+        from cnn.CompDetCNN import CompDetCNN
+        classifier['Elements'] = CompDetCNN(cnn_type=args.cnn)
     ip.compo_detection(input_path_img, output_root, key_params,
                         classifier=classifier, resize_by_height=resized_height, show=False)

@@ -110,7 +110,7 @@ def submit_clicked(value, uploaded_img_file, options):
 			img_filename = save_image_temp(uploaded_img_file)
 
 			# UI Component Detection
-			comp_det_statement = "python ./uiComponentDetector/run_single.py --img {img} --op_dir ./ --clf --min_grad {min_grad} --ffl_block {ffl_block} --min_ele_area {min_ele_area} --max_word_inline_gap {max_word_inline_gap} --max_line_gap {max_line_gap} -cnn {cnn}".format(
+			comp_det_statement = "python ./uiComponentDetector/run_single.py --img {img} --op_dir ./ --clf --min_grad {min_grad} --ffl_block {ffl_block} --min_ele_area {min_ele_area} --max_word_inline_gap {max_word_inline_gap} --max_line_gap {max_line_gap} --cnn {cnn}".format(
 				img=img_filename,
 				min_grad=options["min_grad"],
 				ffl_block=options["ffl_block"],
