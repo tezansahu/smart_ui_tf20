@@ -13,6 +13,7 @@ parser.add_argument("--ffl_block", type=int, default=5, help="Fill-flood thresho
 parser.add_argument("--min_ele_area", type=int, default=25, help="Minimum Area for Components")
 parser.add_argument("--max_word_inline_gap", type=int, default=4, help="Max Text Word Gap to be Same Line")
 parser.add_argument("--max_line_gap", type=int, default=4, help="Max Text Line Gap to be Same Paragraph")
+parser.add_argument("--cnn", type=str, default="cnn-wireframes-only", help="Model for UI Component Classification")
 parser.add_argument("--clf", action='store_true')
 parser.add_argument("--merge_contained_ele", action='store_true', help="Merge Elements Contained in Others")
 
