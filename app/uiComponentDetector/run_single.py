@@ -8,7 +8,13 @@ import detect_compo.ip_region_proposal as ip
 parser = ArgumentParser()
 parser.add_argument("--img", type=str, help="path/to/img")
 parser.add_argument("--op_dir", type=str, help="path/to/output/directory")
+parser.add_argument("--min_grad", type=int, default=3, help="Gradient Threshold to produce Binary Map")
+parser.add_argument("--ffl_block", type=int, default=5, help="Fill-flood threshold")
+parser.add_argument("--min_ele_area", type=int, default=25, help="Minimum Area for Components")
+parser.add_argument("--max_word_inline_gap", type=int, default=4, help="Max Text Word Gap to be Same Line")
+parser.add_argument("--max_line_gap", type=int, default=4, help="Max Text Line Gap to be Same Paragraph")
 parser.add_argument("--clf", action='store_true')
+parser.add_argument("--merge_contained_ele", action='store_true', help="Merge Elements Contained in Others")
 
 
 def resize_height_by_longest_edge(img_path, resize_length=800):
@@ -41,8 +47,14 @@ if __name__ == '__main__':
     '''
     args = parser.parse_args()
 
-    key_params = {'min-grad':3, 'ffl-block':5, 'min-ele-area':25, 'merge-contained-ele':False,
-                  'max-word-inline-gap':4, 'max-line-gap':4}
+    key_params = {
+        'min-grad':args.min_grad, 
+        'ffl-block':args.ffl_block, 
+        'min-ele-area':args.min_ele_area, 
+        'merge-contained-ele':args.merge_contained_ele,
+        'max-word-inline-gap':args.max_word_inline_gap, 
+        'max-line-gap':args.max_line_gap
+    }
 
     # set input image path
     input_path_img = args.img

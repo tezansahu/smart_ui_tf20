@@ -85,7 +85,17 @@ def submit_clicked(value, img_filename, options):
 	if(value):
 		with st.spinner(text='Submitted successfully. Processing image...'):
 			# UI Component Detection
-			os.system("python ./uiComponentDetector/run_single.py --img {} --op_dir ./".format(img_filename))
+			comp_det_statement = "python ./uiComponentDetector/run_single.py --img {img} --op_dir ./ --clf --min_grad {min_grad} --ffl_block {ffl_block} --min_ele_area {min_ele_area} --max_word_inline_gap {max_word_inline_gap} --max_line_gap {max_line_gap}".format(
+				img=img_filename,
+				min_grad=options["min_grad"],
+				ffl_block=options["ffl_block"],
+				min_ele_area=options["min_ele_area"],
+				max_word_inline_gap=options["max_word_inline_gap"],
+				max_line_gap=options["max_line_gap"]
+			)
+			if options["merge_contained_ele"]:
+				comp_det_statement += " --merge_contained_ele"
+			os.system(comp_det_statement)
 
 			st.success('Completed Processing!')
 
