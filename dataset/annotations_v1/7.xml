@@ -360,7 +360,7 @@
 		</bndbox>
 	</object>
 	<object>
-		<name>text_bold</name>
+		<name>text</name>
 		<pose>Unspecified</pose>
 		<truncated>0</truncated>
 		<difficult>0</difficult>
