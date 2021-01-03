@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import time
 import json
 import base64
@@ -45,7 +46,7 @@ def get_button_css(button_id):
 	
 	return custom_css
 
-def download_button(json_data):
+def download_json_button(json_data):
 	data_str = json.dumps(json_data, indent=4)
 	b64 = base64.b64encode(data_str.encode('utf-8')).decode()
 
@@ -53,16 +54,19 @@ def download_button(json_data):
 	button_id = re.sub('\d+', '', button_uuid)
 
 	dl_link = get_button_css(button_id) + f'<a download="wireframe.json" id="{button_id}" href="data:file/txt;base64,{b64}">Download JSON File</a><br></br>'
-
 	return dl_link
 
 
-def render_output_button(html_page_url):
+def download_html_button(html_file):
 	button_uuid = str(uuid.uuid4()).replace('-', '')
 	button_id = re.sub('\d+', '', button_uuid)
 
-	link = get_button_css(button_id) + f'<a id="{button_id}" href="{html_page_url}" target="_blank">Render HTML Output</a><br></br>'
-	return link
+	with open(html_file, 'r') as html:
+		source_code = html.read()
+	b64 = base64.b64encode(source_code.encode('utf-8')).decode()
+
+	dl_link = get_button_css(button_id) + f'<a download="wireframe.html" id="{button_id}" href="data:file/html;base64,{b64}">Download HTML File</a><br></br>'
+	return dl_link
 
 
 def imgshow(uploaded_file):
@@ -93,18 +97,30 @@ def delete_temp_files(img_filename):
 	os.rmdir("ip")
 
 
-def display_result(json_data, html_page_url):
+def render_html(html_file):
+	st.write("### HTML Rendering")
+	with open(html_file, 'r') as html:
+		source_code = html.read()
+	components.html(source_code)
 
-	download_btn_str = download_button(json_data)
-	render_btn_str = render_output_button(html_page_url)
 
-	buttons_str = f"{render_btn_str}{download_btn_str}"
+def display_result(json_data, html_file, show_json, show_html):
+
+	download_json_btn_str = download_json_button(json_data)
+	download_html_btn_str = download_html_button(html_file)
+	
+	buttons_str = f"{download_json_btn_str}{download_html_btn_str}"
 	st.markdown(buttons_str, unsafe_allow_html=True)
 
-	st.json(json_data)
+	if show_html:
+		render_html(html_file)
+
+	if show_json:
+		st.write("### JSON Output")
+		st.json(json_data)
 
 
-def submit_clicked(value, uploaded_img_file, options):
+def submit_clicked(value, uploaded_img_file, options, show_json, show_html):
 	if(value):
 		with st.spinner(text='Submitted successfully. Processing image...'):
 			img_filename = save_image_temp(uploaded_img_file)
@@ -128,13 +144,13 @@ def submit_clicked(value, uploaded_img_file, options):
 			with open("compo.json", "r") as fin:
 				json_data = json.load(fin)
 
-			# Dummy HTML rendering of the wireframe image
-			html_page_url = "demo.html"
-
 			img = Image.open("ip/result.jpg")
 			st.image(img, caption='Identified Components', use_column_width=True)
 
-			display_result(json_data, html_page_url)
+			# Dummy HTML rendering of the wireframe image
+			html_file = "output.html"
+
+			display_result(json_data, html_file, show_json, show_html)
 
 			delete_temp_files(img_filename)
 
@@ -146,10 +162,16 @@ def main():
 	uploaded_file = st.file_uploader("Choose a wireframe image file", type=["png", "jpg", "JPG", "jpeg"])
 	imgshow(uploaded_file)
 
+	st.sidebar.title("Outputs")
+
+	show_json = st.sidebar.checkbox("Show JSON Output")
+	show_html = st.sidebar.checkbox("Show HTML Output")
+
 	st.sidebar.title("Advanced Options")
 	options = {}
 	
 	st.sidebar.subheader("For UI Elements:")
+	
 	options["cnn_model"] = CNN_MODELS[st.sidebar.selectbox(
 		"Model for UI Component Classification:", 
 		options=["CNN (Wireframes & ReDraw)", "CNN (Wireframes only)", "CNN (RICO Dataset)"]
@@ -165,7 +187,7 @@ def main():
 	options["max_line_gap"] = st.sidebar.slider("Max Text Line Gap to be Same Paragraph", min_value=1, max_value=20, value=4, step=1)
 
 	submitted = st.button("Submit")
-	submit_clicked(submitted, uploaded_file, options)
+	submit_clicked(submitted, uploaded_file, options, show_json, show_html)
 
 
 	st.write('_Developed with ❤️ by [Rishabh](https://rishabharya.site/), [Shreya](https://laddhashreya2000.github.io) & [Tezan](https://tezansahu.github.io/)_')
