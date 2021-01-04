@@ -1,7 +1,4 @@
-# from bs4 import BeautifulSoup
-# from imutils import paths
 import os
-# import pandas as pd
 import cv2
 import json
 from PIL import Image
@@ -12,6 +9,9 @@ from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument("--img", type=str, help="path/to/img")
 parser.add_argument("--json", type=str, help="path/to/json")
+
+repo_root = os.path.dirname(os.path.abspath(__file__))[:os.path.dirname(os.path.abspath(__file__)).find("smart_ui_tf20")+13]
+tess_data_dir = os.path.join(repo_root, "app", "tessdata")
 
 
 def extractAttributes(image, jsonfile):
@@ -41,8 +41,7 @@ def extractAttributes(image, jsonfile):
         ymin = int(i['row_min'])
         ymax = int(i['row_max'])
         extracted = im[ymin:ymax, xmin:xmax]
-        
-        # d = label+str(i['id'])
+
         
         extracted = cv2.cvtColor(extracted, cv2.COLOR_BGR2RGB)
         im_pil = Image.fromarray(extracted)
@@ -56,7 +55,7 @@ def extractAttributes(image, jsonfile):
             element['font-color'] = '#%02x%02x%02x' % colors[-2][1]
             # print(element['text'])
             if(element['text'] ):
-                with PyTessBaseAPI(oem=OEM.TESSERACT_ONLY, path="./tessdata") as api:
+                with PyTessBaseAPI(oem=OEM.TESSERACT_ONLY, path=tess_data_dir) as api:
                     api.SetImage(im_pil)
                     api.Recognize() 
                     iterator = api.GetIterator()
@@ -71,14 +70,14 @@ def extractAttributes(image, jsonfile):
                     if(font['underlined']):
                         element['text-decoration'] = 'underline'
             item['properties'] = element
-            print(item)
+            
         elif(label=="div_rect"):
             colors = sorted(im_pil.getcolors())
             item = {'element': "div", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
             element = {}
             element['background-color'] = '#%02x%02x%02x' % colors[-1][1]
             item['properties'] = element
-            print(item)
+            
             
         elif(label=="image"):
             element = {}
@@ -88,7 +87,7 @@ def extractAttributes(image, jsonfile):
                 item = {'element':"text", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
                 colors = sorted(im_pil.getcolors())
                 element['font-color'] = '#%02x%02x%02x' % colors[-2][1]
-                with PyTessBaseAPI(oem=OEM.TESSERACT_ONLY, path="./tessdata") as api:
+                with PyTessBaseAPI(oem=OEM.TESSERACT_ONLY, path=tess_data_dir) as api:
                     api.SetImage(im_pil)
                     api.Recognize() 
                     iterator = api.GetIterator()
@@ -103,14 +102,14 @@ def extractAttributes(image, jsonfile):
                     if(font['underlined']):
                         element['text-decoration'] = 'underline'
                 item['properties'] = element
-                print(item)
+                
             else:
                 colors = sorted(im_pil.getcolors())
                 element = {}
                 item = {'element':label, 'x': xmin, 'y': ymin, 'width': w, 'height': h}
                 element['background-color'] = '#%02x%02x%02x' % colors[-1][1]
                 item['properties'] = element
-                print(item)
+                
             
 
         elif(label=="div_round"):
@@ -120,7 +119,7 @@ def extractAttributes(image, jsonfile):
             element['background-color'] = '#%02x%02x%02x' % colors[-1][1]
             element['border_radius'] = int(min(w, h)/2)
             item['properties'] = element
-            print(item)
+            
             
             # print(border_radius)
         elif(label=="dash"):
@@ -130,14 +129,14 @@ def extractAttributes(image, jsonfile):
             element['image'] = 'horizontal-rule'
             element['color'] = '#%02x%02x%02x' % colors[-2][1]
             item['properties'] = element
-            print(item)
+            
 
         elif(label=="checkbox"):
             item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
             element = {}
             element['image'] = 'checkbox'
             item['properties'] = element
-            print(item)
+            
         elif(label=="down_arrow"):
             item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
             element = {}
@@ -145,7 +144,7 @@ def extractAttributes(image, jsonfile):
             element['image'] = 'arrow_drop_down'
             element['color'] = '#%02x%02x%02x' % colors[-2][1] # if not white then keep
             item['properties'] = element
-            print(item)
+            
         elif(label=="left_arrow"):
             item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
             element = {}
@@ -153,13 +152,13 @@ def extractAttributes(image, jsonfile):
             element['image'] = 'chevron-left'
             element['color'] = '#%02x%02x%02x' % colors[-2][1]
             item['properties'] = element
-            print(item)
+            
         elif(label=="radio"):
             item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
             element = {}
             element['image'] = 'radio-button'
             item['properties'] = element
-            print(item)
+            
         elif(label=="right_arrow"):
             item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
             element = {}
@@ -167,14 +166,14 @@ def extractAttributes(image, jsonfile):
             element['image'] = 'chevron-right'
             element['color'] = '#%02x%02x%02x' % colors[-2][1]
             item['properties'] = element
-            print(item)
+            
         elif(label=="scroll"):
             item = {'element': "scrollbar", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
             element = {}
             colors = sorted(im_pil.getcolors())
             element['color'] = '#%02x%02x%02x' % colors[-1][1]
             item['properties'] = element
-            print(item)
+            
         elif(label=="toggle_switch"):
             item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
             element = {}
@@ -182,7 +181,7 @@ def extractAttributes(image, jsonfile):
             element['image'] = 'toggle_on'
             element['color'] = '#%02x%02x%02x' % colors[-2][1]
             item['properties'] = element
-            print(item)
+            
         elif(label=="up_arrow"):
             item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
             element = {}
@@ -190,7 +189,7 @@ def extractAttributes(image, jsonfile):
             element['image'] = 'arrow_drop_up'
             element['color'] = '#%02x%02x%02x' % colors[-2][1]
             item['properties'] = element
-            print(item)
+            
         elif(label=="triangle-down"):
             item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
             element = {}
@@ -198,7 +197,7 @@ def extractAttributes(image, jsonfile):
             element['image'] = 'arrow_drop_down'
             element['color'] = '#%02x%02x%02x' % colors[-2][1]
             item['properties'] = element
-            print(item)
+            
         elif(label=="triangle-up"):
             item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
             element = {}
@@ -206,17 +205,18 @@ def extractAttributes(image, jsonfile):
             element['image'] = 'arrow_drop_up'
             element['color'] = '#%02x%02x%02x' % colors[-2][1]
             item['properties'] = element
-            print(item)
+            
         elif(label=="Background"):
             item = {'element': "background", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
             element = {}
             colors = sorted(im_pil.getcolors())
             element['color'] = '#%02x%02x%02x' % colors[-2][1]
             item['properties'] = element
-            print(item)
+            
         else:
             item = {'element': "unknown", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            print(item)
+
+        # print(item)    
         output.append(item)
 
     # Closing file 
@@ -224,13 +224,11 @@ def extractAttributes(image, jsonfile):
     with open(jsonfile, "w") as f:
         json.dump(output, f, indent=4)
      
-        
-
-# icon, div, text, image, background  --- if image has text then make it text. ---class should be name.
 
 def main():
     args = parser.parse_args()
     extractAttributes(args.img, args.json)
+
 
 if __name__ == "__main__":
     main()

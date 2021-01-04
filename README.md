@@ -21,7 +21,8 @@ Generate a JSON file (`output.json`) from the screenshot of the wireframe. The f
 $ git clone https://github.com/tezansahu/smart_ui_tf20.git
 $ cd smart_ui_tf20/
 $ pip install -r requirements.txt
-$ python models/download_models.py
+$ python models/download_models.py   # Download the models to be used by the app
+$ git clone https://github.com/tesseract-ocr/tessdata.git ./app/tessdata/   # Clone the tessdata/ for legacy OCR being used in the app
 
 # Start the app
 $ cd app/

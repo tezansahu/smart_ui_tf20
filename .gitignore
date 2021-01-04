@@ -2,6 +2,7 @@
 __pycache__/
 results/
 ip/
+tessdata/
 
 .DS_Store
 Pipfile

@@ -19,6 +19,8 @@ CNN_MODELS = {
 	"CNN (Wireframes only)": "cnn-wireframes-only"
 }
 
+repo_root = os.path.dirname(os.path.abspath(__file__))[:os.path.dirname(os.path.abspath(__file__)).find("smart_ui_tf20")+13]
+
 # Obtain the CSS for Buttons to be displayed
 def get_button_css(button_id):
 	custom_css = f"""
@@ -125,7 +127,9 @@ def submit_clicked(value, uploaded_img_file, options, show_json, show_html):
 			img_filename = save_image_temp(uploaded_img_file)
 
 			# UI Component Detection
-			comp_det_statement = "python ./uiComponentDetector/run_single.py --img {img} --op_dir ./ --clf --min_grad {min_grad} --ffl_block {ffl_block} --min_ele_area {min_ele_area} --max_word_inline_gap {max_word_inline_gap} --max_line_gap {max_line_gap} --cnn {cnn}".format(
+			print("Starting component detection & classification")
+			comp_det_statement = "python {repo_root}/app/uiComponentDetector/run_single.py --img {img} --op_dir ./ --clf --min_grad {min_grad} --ffl_block {ffl_block} --min_ele_area {min_ele_area} --max_word_inline_gap {max_word_inline_gap} --max_line_gap {max_line_gap} --cnn {cnn}".format(
+				repo_root=repo_root,
 				img=img_filename,
 				min_grad=options["min_grad"],
 				ffl_block=options["ffl_block"],
@@ -137,6 +141,15 @@ def submit_clicked(value, uploaded_img_file, options, show_json, show_html):
 			if options["merge_contained_ele"]:
 				comp_det_statement += " --merge_contained_ele"
 			os.system(comp_det_statement)
+
+			# Attribute Extraction
+			print("Starting attribute extraction")
+			attr_extr_statement = "python {repo_root}/app/extractAttributes/extractAttributes.py --img {img} --json {json}".format(
+				repo_root=repo_root,
+				img=img_filename,
+				json="compo.json"
+			)
+			os.system(attr_extr_statement)
 
 			st.success('Completed Processing!')
 
