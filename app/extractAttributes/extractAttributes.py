@@ -13,210 +13,135 @@ parser.add_argument("--json", type=str, help="path/to/json")
 repo_root = os.path.dirname(os.path.abspath(__file__))[:os.path.dirname(os.path.abspath(__file__)).find("smart_ui_tf20")+13]
 tess_data_dir = os.path.join(repo_root, "app", "tessdata")
 
+ELEMENT_NAME = {
+    "text": "text",
+    "div_rect": "div",
+    "image": "image",
+    "div_round": "div",
+    "dash": "icon",
+    "checkbox": "icon",
+    "radio": "icon",
+    "triangle_down": "icon",
+    "triangle_up": "icon",
+    "right_arrow": "icon",
+    "left_arrow": "icon",
+    "up_arrow": "icon",
+    "down_arrow": "icon",
+    "scroll": "scrollbar",
+    "toggle_switch": "icon",
+    "checkbox": "checkbox",
+    "radio": "radio",
+    "Background": "background"
+}
 
+IMAGE_NAME = {
+    "triangle_down": "arrow_drop_down",
+    "triangle_up": "arrow_drop_up",
+    "right_arrow": "chevron-right",
+    "left_arrow": "chevron-left",
+    "up_arrow": "arrow_drop_up",
+    "down_arrow": "arrow_drop_down",
+    "dash": "horizontal-rule",
+    "toggle_switch": "toggle_on"
+}
+
+def extract_text(properties, im_pil):
+    
+    with PyTessBaseAPI(oem=OEM.TESSERACT_ONLY, path=tess_data_dir) as api:
+        api.SetImage(im_pil)
+        api.Recognize() 
+        iterator = api.GetIterator()
+        font = iterator.WordFontAttributes()
+        properties['font-size'] = font['pointsize']
+        properties['font-family'] = font['font_name']
+        if(font['bold']):
+            properties['font-weight'] = 'bold'
+        if(font['italic']):
+            properties['font-style'] = 'italic'
+        if(font['underlined']):
+            properties['text-decoration'] = 'underline'
+    return properties
+            
 def extractAttributes(image, jsonfile):
-    # grab all image paths then construct the training and testing split
-    # imagePaths = list(paths.list_files(images_path))
 
     im = cv2.imread(image)
-
     f = open(jsonfile, "r+") 
-    output = []
-    # returns JSON object as  
-    # a dictionary 
     data = json.load(f) 
-    # Iterating through the json 
-    # list 
+    output = []
+
+    # loop over all items in json
     for i in data['compos']: 
-        # print(i) 
         # extract the image dimensions
         w = int(i["width"])
         h = int(i["height"])
 
-        # loop over all object elements
         # extract the label and bounding box coordinates
         label = i["class"]
         xmin = int(i['column_min'])
         xmax = int(i['column_max'])
         ymin = int(i['row_min'])
         ymax = int(i['row_max'])
+
+        # extract the cropped out image according to the bounding box
         extracted = im[ymin:ymax, xmin:xmax]
 
-        
+        # convert the colors (for converting to PIL)
         extracted = cv2.cvtColor(extracted, cv2.COLOR_BGR2RGB)
+
+        # convert image array to a PIL image
         im_pil = Image.fromarray(extracted)
-        item = {}
+
+        item = {'element': ELEMENT_NAME[label], 'x': xmin, 'y': ymin, 'width': w, 'height': h}
+        properties = {}
+
+        # extracting colors from image
+        colors = sorted(im_pil.getcolors())
+        bgcolor = '#%02x%02x%02x' % colors[-1][1]
+        forecolor = '#%02x%02x%02x' % colors[-2][1]
+        
+        # for property extraction based on labels
         if(label=="text"):
-            item = {'element':label, 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            colors = sorted(im_pil.getcolors())
-            element = {}
-            element['text'] = str(tesserocr.image_to_text(im_pil)).rstrip()
-            # element['font-color'] = colors[-2]
-            element['font-color'] = '#%02x%02x%02x' % colors[-2][1]
-            # print(element['text'])
-            if(element['text'] ):
-                with PyTessBaseAPI(oem=OEM.TESSERACT_ONLY, path=tess_data_dir) as api:
-                    api.SetImage(im_pil)
-                    api.Recognize() 
-                    iterator = api.GetIterator()
-                    font = iterator.WordFontAttributes()
-                    # print(iterator.WordFontAttributes())
-                    element['font-size'] = font['pointsize']
-                    element['font-family'] = font['font_name']
-                    if(font['bold']):
-                        element['font-weight'] = 'bold'
-                    if(font['italic']):
-                        element['font-style'] = 'italic'
-                    if(font['underlined']):
-                        element['text-decoration'] = 'underline'
-            item['properties'] = element
+            text = str(tesserocr.image_to_text(im_pil)).rstrip()
+            if(text):
+                properties['text'] = text
+                properties['font-color'] = forecolor
+                properties = extract_text(properties, im_pil)
+                
             
         elif(label=="div_rect"):
-            colors = sorted(im_pil.getcolors())
-            item = {'element': "div", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            element = {}
-            element['background-color'] = '#%02x%02x%02x' % colors[-1][1]
-            item['properties'] = element
-            
+            properties['background-color'] = bgcolor
             
         elif(label=="image"):
-            element = {}
-            element['text'] = str(tesserocr.image_to_text(im_pil)).rstrip()           
-            # print(element['text'])
-            if(element['text'] ):
-                item = {'element':"text", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-                colors = sorted(im_pil.getcolors())
-                element['font-color'] = '#%02x%02x%02x' % colors[-2][1]
-                with PyTessBaseAPI(oem=OEM.TESSERACT_ONLY, path=tess_data_dir) as api:
-                    api.SetImage(im_pil)
-                    api.Recognize() 
-                    iterator = api.GetIterator()
-                    font = iterator.WordFontAttributes()
-                    # print(iterator.WordFontAttributes())
-                    element['font-size'] = font['pointsize']
-                    element['font-family'] = font['font_name']
-                    if(font['bold']):
-                        element['font-weight'] = 'bold'
-                    if(font['italic']):
-                        element['font-style'] = 'italic'
-                    if(font['underlined']):
-                        element['text-decoration'] = 'underline'
-                item['properties'] = element
-                
+            text = str(tesserocr.image_to_text(im_pil)).rstrip()    
+            if(text):
+                item['element'] = "text"
+                properties['text'] = text
+                properties['font-color'] = forecolor
+                properties = extract_text(properties, im_pil)
+                                
             else:
-                colors = sorted(im_pil.getcolors())
-                element = {}
-                item = {'element':label, 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-                element['background-color'] = '#%02x%02x%02x' % colors[-1][1]
-                item['properties'] = element
-                
-            
+                properties['background-color'] = bgcolor
 
         elif(label=="div_round"):
-            colors = sorted(im_pil.getcolors())
-            item = {'element': "div", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            element = {}
-            element['background-color'] = '#%02x%02x%02x' % colors[-1][1]
-            element['border_radius'] = int(min(w, h)/2)
-            item['properties'] = element
+            properties['background-color'] = bgcolor
+            properties['border_radius'] = int(min(w, h)/2)
             
+        elif(item['element']=="icon"):
+            properties['image'] = IMAGE_NAME[label]
+            properties['color'] = forecolor
             
-            # print(border_radius)
-        elif(label=="dash"):
-            item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            element = {}
-            colors = sorted(im_pil.getcolors())
-            element['image'] = 'horizontal-rule'
-            element['color'] = '#%02x%02x%02x' % colors[-2][1]
-            item['properties'] = element
-            
+        elif(label=="radio" or label=="checkbox"):
+            continue
 
-        elif(label=="checkbox"):
-            item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            element = {}
-            element['image'] = 'checkbox'
-            item['properties'] = element
-            
-        elif(label=="down_arrow"):
-            item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            element = {}
-            colors = sorted(im_pil.getcolors())
-            element['image'] = 'arrow_drop_down'
-            element['color'] = '#%02x%02x%02x' % colors[-2][1] # if not white then keep
-            item['properties'] = element
-            
-        elif(label=="left_arrow"):
-            item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            element = {}
-            colors = sorted(im_pil.getcolors())
-            element['image'] = 'chevron-left'
-            element['color'] = '#%02x%02x%02x' % colors[-2][1]
-            item['properties'] = element
-            
-        elif(label=="radio"):
-            item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            element = {}
-            element['image'] = 'radio-button'
-            item['properties'] = element
-            
-        elif(label=="right_arrow"):
-            item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            element = {}
-            colors = sorted(im_pil.getcolors())
-            element['image'] = 'chevron-right'
-            element['color'] = '#%02x%02x%02x' % colors[-2][1]
-            item['properties'] = element
-            
         elif(label=="scroll"):
-            item = {'element': "scrollbar", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            element = {}
-            colors = sorted(im_pil.getcolors())
-            element['color'] = '#%02x%02x%02x' % colors[-1][1]
-            item['properties'] = element
-            
-        elif(label=="toggle_switch"):
-            item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            element = {}
-            colors = sorted(im_pil.getcolors())
-            element['image'] = 'toggle_on'
-            element['color'] = '#%02x%02x%02x' % colors[-2][1]
-            item['properties'] = element
-            
-        elif(label=="up_arrow"):
-            item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            element = {}
-            colors = sorted(im_pil.getcolors())
-            element['image'] = 'arrow_drop_up'
-            element['color'] = '#%02x%02x%02x' % colors[-2][1]
-            item['properties'] = element
-            
-        elif(label=="triangle-down"):
-            item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            element = {}
-            colors = sorted(im_pil.getcolors())
-            element['image'] = 'arrow_drop_down'
-            element['color'] = '#%02x%02x%02x' % colors[-2][1]
-            item['properties'] = element
-            
-        elif(label=="triangle-up"):
-            item = {'element': "icon", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            element = {}
-            colors = sorted(im_pil.getcolors())
-            element['image'] = 'arrow_drop_up'
-            element['color'] = '#%02x%02x%02x' % colors[-2][1]
-            item['properties'] = element
+            properties['color'] = bgcolor
             
         elif(label=="Background"):
-            item = {'element': "background", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-            element = {}
-            colors = sorted(im_pil.getcolors())
-            element['color'] = '#%02x%02x%02x' % colors[-2][1]
-            item['properties'] = element
+            properties['background-color'] = bgcolor
             
-        else:
-            item = {'element': "unknown", 'x': xmin, 'y': ymin, 'width': w, 'height': h}
-
-        # print(item)    
+        if(properties):
+            item['properties'] = properties  
+        print(item)
         output.append(item)
 
     # Closing file 
@@ -225,10 +150,6 @@ def extractAttributes(image, jsonfile):
         json.dump(output, f, indent=4)
      
 
-def main():
+if __name__ == "__main__":
     args = parser.parse_args()
     extractAttributes(args.img, args.json)
-
-
-if __name__ == "__main__":
-    main()
