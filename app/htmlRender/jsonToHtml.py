@@ -1,8 +1,15 @@
 import json
+import os
 from yattag import Doc,indent
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+
+parser.add_argument("--json", type=str, help="path/to/json/input")
+parser.add_argument("--html", type=str, help="path/to/html/output")
 
 COMPONENT_TO_TAG = {
-    "text": "p",
+    "text": "span",
     "icon": "i",
     "div": "div",
     "background":"body",
@@ -11,15 +18,7 @@ COMPONENT_TO_TAG = {
     "radio": "input"
 }
 
-# ICON_NAME = {
-#     "triangle-down": "arrow_drop_down",
-#     "triangle-up": "arrow_drop_up",
-#     "right-arrow": "chevron-right",
-#     "left-arrow": "chevron-left",
-#     "up-arrow": "arrow_drop_up",
-#     "down-arrow": "arrow_drop_down",
-#     "dash": "horizontal-rule"
-# }
+repo_root = os.path.dirname(os.path.abspath(__file__))[:os.path.dirname(os.path.abspath(__file__)).find("smart_ui_tf20")+13]
 
 def jsonComponentsToHtmlString(components):
     doc, tag, text = Doc().tagtext()
@@ -28,7 +27,7 @@ def jsonComponentsToHtmlString(components):
         with tag('head'):
             # We use google material icons
             doc.asis('<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">')
-        with tag('body', style=f"{components[0]["properties"]["color"]}"):    #first element in components is background
+        with tag('body', style=f"background-color: {components[0]['properties']['background-color']}"):    #first element in components is background
             for component in components[1:]:
                 # Add generic styling elements
                 component_style = f"""
@@ -40,38 +39,42 @@ def jsonComponentsToHtmlString(components):
                 """.replace("\n", "")
 
                 # Add more styling elements using component.properties
-                for prop in component["properties"].keys():
-                    if prop != "text":
-                        # Set the border-radius (of a div) based on the smallest side (assuming true size isn't mentioned in the JSON)
-                        if prop == "border-radius":
-                            # radius = int(min(component["height"], component["width"])/2)
-                            component_style += f"{prop}: {component["properties"]["border-radius"]}px"
-                        else:
-                            component_style += f"{prop}: {component['properties'][prop]}"
-                    if prop.endswith("size"):
-                        component_style += "px"
-                    else:
-                        component_style += f"{prop}: {component['properties'][prop]}"
-                    component_style += "; "
+                if "properties" in component.keys():
+                    for prop in component["properties"].keys():
+                        if prop != "text":
+                            # Set the border-radius (of a div) based on the smallest side (assuming true size isn't mentioned in the JSON)
+                            if prop == "border-radius":
+                                # radius = int(min(component["height"], component["width"])/2)
+                                component_style += f"{prop}: {component['properties']['border-radius']}px"
+                            else:
+                                component_style += f"{prop}: {component['properties'][prop]}"
+                        if prop.endswith("size"):
+                            component_style += "px"
+                        component_style += "; "
 
-                # Icon components are dealt with differently because they need a separate class
+                # Create HTML tags with attributes based on each component
                 if component["element"] == "icon":
                     with tag(COMPONENT_TO_TAG[component["element"]], style=component_style, klass="material-icons"):
-                        txt = ICON_NAME[component["properties"]["image"]]
+                        txt = component["properties"]["image"]
                         text(txt)
 
                 elif component["element"] == "image":
-                    doc.stag(COMPONENT_TO_TAG[component["element"]], src="assets/dummy.jpg", height=f"{str(component["height"])}px", width=f"{str(component["width"])}px", style=f"padding:2px;background-color:{ component["properties"]["background-color"]}") 
+                    # f"padding:2px; background-color:{ component['properties']['background-color']}"
+                    dummy_img_path = os.path.join(repo_root, "app", "htmlRender", "assets", "dummy.png")
+                    doc.stag(COMPONENT_TO_TAG[component["element"]], src=dummy_img_path, height=f"{str(component['height'])}px", width=f"{str(component['width'])}px", style=component_style) 
 
                 elif component["element"] == "checkbox" or component["element"] == "radio":
-                    doc.tag(COMPONENT_TO_TAG[component["element"]] , type=component["element"])    
+                    with doc.tag(COMPONENT_TO_TAG[component["element"]] , type=component["element"], style=component_style):
+                        text("")    
 
                 elif component["element"] == "text":
-                    with tag(COMPONENT_TO_TAG[component["element"]], style=component_style):                      
-                        text(component["properties"]["text"])              
+                    with tag(COMPONENT_TO_TAG[component["element"]], style=component_style + "z-index: 2;"):                      
+                        if "properties" in component.keys():
+                            text(component["properties"]["text"])              
 
                 elif component["element"] == "div":
-                    doc.tag(COMPONENT_TO_TAG[component["element"]], style=component_style)
+                    with doc.tag(COMPONENT_TO_TAG[component["element"]], style=component_style + "z-index: -1;"):
+                        text("")
 
                 else:
                     pass    
@@ -85,3 +88,10 @@ def jsonToHtml(pathToJson, outputHtmlFile="output.html"):
     htmlString = jsonComponentsToHtmlString(components)
     with open(outputHtmlFile, "w") as out_html:
         out_html.write(htmlString)
+
+def main():
+    args = parser.parse_args()
+    jsonToHtml(args.json, args.html)
+
+if __name__ == "__main__":
+    main()

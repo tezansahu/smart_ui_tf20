@@ -151,6 +151,9 @@ def submit_clicked(value, uploaded_img_file, options, show_json, show_html):
 			)
 			os.system(attr_extr_statement)
 
+			# HTML Rendering
+			print("Starting HTML Rendering")
+
 			st.success('Completed Processing!')
 
 			with open("compo.json", "r") as fin:
