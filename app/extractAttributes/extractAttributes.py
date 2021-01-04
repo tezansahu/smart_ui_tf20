@@ -71,7 +71,7 @@ def extractAttributes(image, jsonfile):
     f = open(jsonfile, "r+") 
     data = json.load(f) 
     output = []
-
+    x, y, channels = im.shape
     # loop over all items in json
     for i in data['compos']: 
         # extract the image dimensions
@@ -84,7 +84,12 @@ def extractAttributes(image, jsonfile):
         xmax = int(i['column_max'])
         ymin = int(i['row_min'])
         ymax = int(i['row_max'])
-
+        
+        if(label=="text" or label=="image"):
+            xmin = max(0, xmin-5)
+            ymin = max(0, ymin-5)
+            xmax = min(xmax+5, y)
+            ymax = min(ymax+5, x)
         # extract the cropped out image according to the bounding box
         extracted = im[ymin:ymax, xmin:xmax]
 
@@ -104,17 +109,12 @@ def extractAttributes(image, jsonfile):
         
         # for property extraction based on labels
         if(label=="text"):
-            text_tesserocr = str(tesserocr.image_to_text(im_pil)).rstrip()
-            text_kerasocr = None
-            ext = pipeline.recognize([extracted])[0]
-            if len(ext) > 0:
-                text_kerasocr = ext[0][0]
-            
-            if text_kerasocr:
-                properties['text'] = text_kerasocr
-                properties['font-color'] = forecolor
-                if text_tesserocr:
-                    properties = extract_text(properties, im_pil)
+            text = str(tesserocr.image_to_text(im_pil)).rstrip()
+            print(text)
+            if(text):
+                properties['text'] = text
+                properties['color'] = forecolor
+                properties = extract_text(properties, im_pil)
                 
             
         elif(label=="div_rect"):
@@ -129,7 +129,7 @@ def extractAttributes(image, jsonfile):
             
             if text_kerasocr:
                 properties['text'] = text_kerasocr
-                properties['font-color'] = forecolor
+                properties['color'] = forecolor
                 if text_tesserocr:
                     properties = extract_text(properties, im_pil)
 
@@ -138,7 +138,7 @@ def extractAttributes(image, jsonfile):
 
         elif(label=="div_round"):
             properties['background-color'] = bgcolor
-            properties['border_radius'] = int(min(w, h)/2)
+            properties['border-radius'] = int(min(w, h)/2)
             
         elif(item['element']=="icon"):
             properties['image'] = IMAGE_NAME[label]
