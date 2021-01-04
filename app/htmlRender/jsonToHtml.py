@@ -61,7 +61,7 @@ def jsonComponentsToHtmlString(components):
                         text(txt)
 
                 elif component["element"] == "image":
-                    doc.stag(COMPONENT_TO_TAG[component["element"]], src="dummy.jpg", height=f"{str(component["height"])}px", width=f"{str(component["width"])}px", style=f"padding:2px;background-color:{ component["properties"]["background-color"]}") 
+                    doc.stag(COMPONENT_TO_TAG[component["element"]], src="assets/dummy.jpg", height=f"{str(component["height"])}px", width=f"{str(component["width"])}px", style=f"padding:2px;background-color:{ component["properties"]["background-color"]}") 
 
                 elif component["element"] == "checkbox" or component["element"] == "radio":
                     doc.tag(COMPONENT_TO_TAG[component["element"]] , type=component["element"])    
@@ -70,8 +70,11 @@ def jsonComponentsToHtmlString(components):
                     with tag(COMPONENT_TO_TAG[component["element"]], style=component_style):                      
                         text(component["properties"]["text"])              
 
+                elif component["element"] == "div":
+                    doc.tag(COMPONENT_TO_TAG[component["element"]], style=component_style)
+
                 else:
-                    doc.tag(COMPONENT_TO_TAG[component["element"]], style=component_style):
+                    pass    
                         
     return indent(doc.getvalue())
 
