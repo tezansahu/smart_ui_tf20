@@ -11,6 +11,7 @@ from PIL import Image
 import random
 import string
 import os
+import shutil
 
 CNN_MODELS = {
 	"CNN (Wireframes & ReDraw)": "cnn-generalized",
@@ -18,6 +19,7 @@ CNN_MODELS = {
 	"CNN (Wireframes only)": "cnn-wireframes-only"
 }
 
+# Obtain the CSS for Buttons to be displayed
 def get_button_css(button_id):
 	custom_css = f"""
         <style>
@@ -46,6 +48,7 @@ def get_button_css(button_id):
 	
 	return custom_css
 
+# Get the raw HTML string for the button to download the created JSON file
 def download_json_button(json_data):
 	data_str = json.dumps(json_data, indent=4)
 	b64 = base64.b64encode(data_str.encode('utf-8')).decode()
@@ -56,7 +59,7 @@ def download_json_button(json_data):
 	dl_link = get_button_css(button_id) + f'<a download="wireframe.json" id="{button_id}" href="data:file/txt;base64,{b64}">Download JSON File</a><br></br>'
 	return dl_link
 
-
+# Get the raw HTML string for the button to download the created HTML file
 def download_html_button(html_file):
 	button_uuid = str(uuid.uuid4()).replace('-', '')
 	button_id = re.sub('\d+', '', button_uuid)
@@ -68,13 +71,13 @@ def download_html_button(html_file):
 	dl_link = get_button_css(button_id) + f'<a download="wireframe.html" id="{button_id}" href="data:file/html;base64,{b64}">Download HTML File</a><br></br>'
 	return dl_link
 
-
+# Show the uploaded image on streamlit app
 def imgshow(uploaded_file):
   if uploaded_file is not None:
 	  image = uploaded_file.read()
 	  st.image(image, caption='Wireframe Image', use_column_width=True)
 
-
+# Save the uploaded image temporarily
 def save_image_temp(uploaded_file):
 	if uploaded_file is not None:
 	  img = Image.open(uploaded_file)
@@ -82,28 +85,21 @@ def save_image_temp(uploaded_file):
 	  img.save(filename)
 	  return filename
 
-
+# Check if a file exists & delete it
 def delete_file(filename):
 	if os.path.exists(filename):
 		os.remove(filename)
 
-
+# Delete the temporarily uploaded image file & it corresponsing results
 def delete_temp_files(img_filename):
 	delete_file(img_filename)
 	delete_file("ip/" + img_filename.replace("png", "json"))
 	delete_file("compo.json")
 	delete_file("result.jpg")
 	delete_file("ip/result.jpg")
-	os.rmdir("ip")
+	shutil.rmtree("ip")
 
-
-def render_html(html_file):
-	st.write("### HTML Rendering")
-	with open(html_file, 'r') as html:
-		source_code = html.read()
-	components.html(source_code)
-
-
+# Display the results (JSON & HTML) of the component detection process
 def display_result(json_data, html_file, show_json, show_html):
 
 	download_json_btn_str = download_json_button(json_data)
@@ -113,13 +109,16 @@ def display_result(json_data, html_file, show_json, show_html):
 	st.markdown(buttons_str, unsafe_allow_html=True)
 
 	if show_html:
-		render_html(html_file)
+		st.write("### HTML Rendering")
+		with open(html_file, 'r') as html:
+			source_code = html.read()
+		components.html(source_code)
 
 	if show_json:
 		st.write("### JSON Output")
 		st.json(json_data)
 
-
+# Submit the uploaded wireframe image for component detection
 def submit_clicked(value, uploaded_img_file, options, show_json, show_html):
 	if(value):
 		with st.spinner(text='Submitted successfully. Processing image...'):
