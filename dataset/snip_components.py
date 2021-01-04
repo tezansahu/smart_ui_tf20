@@ -33,7 +33,7 @@ def createBoundingBoxesData():
         for imagePath in imagePaths:
             # build the corresponding annotation path
             fname = imagePath.split(os.path.sep)[-1]
-            fname = "{}.xml".format(fname[:fname.rfind(".")])
+            fname = "{}.json".format(fname[:fname.rfind(".")])
             annotPath = os.path.sep.join([annot_path, fname])
 
             # load the contents of the annotation file and buid the soup
