@@ -4,6 +4,7 @@ import json
 from PIL import Image
 import tesserocr
 from tesserocr import PyTessBaseAPI, OEM
+import keras_ocr
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
@@ -12,6 +13,8 @@ parser.add_argument("--json", type=str, help="path/to/json")
 
 repo_root = os.path.dirname(os.path.abspath(__file__))[:os.path.dirname(os.path.abspath(__file__)).find("smart_ui_tf20")+13]
 tess_data_dir = os.path.join(repo_root, "app", "tessdata")
+
+pipeline = keras_ocr.pipeline.Pipeline()
 
 ELEMENT_NAME = {
     "text": "text",
@@ -101,24 +104,35 @@ def extractAttributes(image, jsonfile):
         
         # for property extraction based on labels
         if(label=="text"):
-            text = str(tesserocr.image_to_text(im_pil)).rstrip()
-            if(text):
-                properties['text'] = text
+            text_tesserocr = str(tesserocr.image_to_text(im_pil)).rstrip()
+            text_kerasocr = None
+            ext = pipeline.recognize([extracted])[0]
+            if len(ext) > 0:
+                text_kerasocr = ext[0][0]
+            
+            if text_kerasocr:
+                properties['text'] = text_kerasocr
                 properties['font-color'] = forecolor
-                properties = extract_text(properties, im_pil)
+                if text_tesserocr:
+                    properties = extract_text(properties, im_pil)
                 
             
         elif(label=="div_rect"):
             properties['background-color'] = bgcolor
             
         elif(label=="image"):
-            text = str(tesserocr.image_to_text(im_pil)).rstrip()    
-            if(text):
-                item['element'] = "text"
-                properties['text'] = text
+            text_tesserocr = str(tesserocr.image_to_text(im_pil)).rstrip()
+            text_kerasocr = None
+            ext = pipeline.recognize([extracted])[0]
+            if len(ext) > 0:
+                text_kerasocr = ext[0][0]
+            
+            if text_kerasocr:
+                properties['text'] = text_kerasocr
                 properties['font-color'] = forecolor
-                properties = extract_text(properties, im_pil)
-                                
+                if text_tesserocr:
+                    properties = extract_text(properties, im_pil)
+
             else:
                 properties['background-color'] = bgcolor
 
@@ -141,7 +155,7 @@ def extractAttributes(image, jsonfile):
             
         if(properties):
             item['properties'] = properties  
-        print(item)
+        # print(item)
         output.append(item)
 
     # Closing file 
