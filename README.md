@@ -19,10 +19,12 @@ Generate a JSON file (`output.json`) from the screenshot of the wireframe. The f
 ```bash
 # Setup
 $ git clone https://github.com/tezansahu/smart_ui_tf20.git
-$ cd smart_ui_tf20/app
+$ cd smart_ui_tf20/
 $ pip install -r requirements.txt
+$ python models/download_models.py
 
 # Start the app
+$ cd app/
 $ streamlit run app.py
 ```
 
