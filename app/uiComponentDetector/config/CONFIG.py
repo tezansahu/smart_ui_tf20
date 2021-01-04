@@ -32,7 +32,7 @@ class Config:
             self.CNN_PATH = pjoin(self.project_root, "models", "cnn-generalized.h5")
 
             self.element_class = ['checkbox', 'dash', 'div_rect', 'div_round', 'down_arrow', 'image', 'left_arrow',
-                              'radio', 'right_arrow', 'scroll', 'text', 'toggle_switch', 'up_arrow']
+                                'radio', 'right_arrow', 'scroll', 'text', 'toggle_switch', 'up_arrow']
             self.class_number = len(self.element_class)
 
             self.COLOR = {'checkbox': (0, 255, 0), 'dash': (0, 0, 255), 'div_rect': (255, 166, 166),
