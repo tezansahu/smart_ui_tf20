@@ -153,6 +153,12 @@ def submit_clicked(value, uploaded_img_file, options, show_json, show_html):
 
 			# HTML Rendering
 			print("Starting HTML Rendering")
+			html_render_statement = "python {repo_root}/app/htmlRender/jsonToHtml.py --json {json} --html {html}".format(
+				repo_root=repo_root,
+				json="compo.json",
+				html="output.html"
+			)
+			os.system(html_render_statement)
 
 			st.success('Completed Processing!')
 

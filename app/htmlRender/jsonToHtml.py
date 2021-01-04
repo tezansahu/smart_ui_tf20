@@ -27,8 +27,9 @@ def jsonComponentsToHtmlString(components):
         with tag('head'):
             # We use google material icons
             doc.asis('<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">')
+            doc.asis('<meta name="viewport" content="width=device-width, initial-scale=1.0">')
         with tag('body', style=f"background-color: {components[0]['properties']['background-color']}"):    #first element in components is background
-            for component in components[1:]:
+            for i, component in enumerate(components[1:]):
                 # Add generic styling elements
                 component_style = f"""
                     position: fixed;
@@ -64,8 +65,7 @@ def jsonComponentsToHtmlString(components):
                     doc.stag(COMPONENT_TO_TAG[component["element"]], src=dummy_img_path, height=f"{str(component['height'])}px", width=f"{str(component['width'])}px", style=component_style) 
 
                 elif component["element"] == "checkbox" or component["element"] == "radio":
-                    with doc.tag(COMPONENT_TO_TAG[component["element"]] , type=component["element"], style=component_style):
-                        text("")    
+                    doc.input(type=component["element"], style=component_style, name=f"input_{i}")
 
                 elif component["element"] == "text":
                     with tag(COMPONENT_TO_TAG[component["element"]], style=component_style + "z-index: 2;"):                      

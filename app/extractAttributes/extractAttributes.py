@@ -22,8 +22,6 @@ ELEMENT_NAME = {
     "image": "image",
     "div_round": "div",
     "dash": "icon",
-    "checkbox": "icon",
-    "radio": "icon",
     "triangle_down": "icon",
     "triangle_up": "icon",
     "right_arrow": "icon",
@@ -71,7 +69,7 @@ def extractAttributes(image, jsonfile):
     f = open(jsonfile, "r+") 
     data = json.load(f) 
     output = []
-    x, y, channels = im.shape
+    x, y, _ = im.shape
     # loop over all items in json
     for i in data['compos']: 
         # extract the image dimensions
@@ -102,15 +100,21 @@ def extractAttributes(image, jsonfile):
         item = {'element': ELEMENT_NAME[label], 'x': xmin, 'y': ymin, 'width': w, 'height': h}
         properties = {}
 
+        
         # extracting colors from image
-        colors = sorted(im_pil.getcolors())
-        bgcolor = '#%02x%02x%02x' % colors[-1][1]
-        forecolor = '#%02x%02x%02x' % colors[-2][1]
+        try:
+            colors = sorted(im_pil.getcolors())
+            bgcolor = '#%02x%02x%02x' % colors[-1][1]
+            forecolor = '#%02x%02x%02x' % colors[-2][1]
+        except Exception:
+            # default colors
+            bgcolor = "#fff"
+            forecolor = "#000"
         
         # for property extraction based on labels
         if(label=="text"):
             text = str(tesserocr.image_to_text(im_pil)).rstrip()
-            print(text)
+            # print(text)
             if(text):
                 properties['text'] = text
                 properties['color'] = forecolor
@@ -128,6 +132,7 @@ def extractAttributes(image, jsonfile):
                 text_kerasocr = ext[0][0]
             
             if text_kerasocr:
+                item["element"] = "text"
                 properties['text'] = text_kerasocr
                 properties['color'] = forecolor
                 if text_tesserocr:
@@ -145,7 +150,7 @@ def extractAttributes(image, jsonfile):
             properties['color'] = forecolor
             
         elif(label=="radio" or label=="checkbox"):
-            continue
+            pass
 
         elif(label=="scroll"):
             properties['color'] = bgcolor
