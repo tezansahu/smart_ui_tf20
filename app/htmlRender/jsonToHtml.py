@@ -4,16 +4,22 @@ from yattag import Doc,indent
 COMPONENT_TO_TAG = {
     "text": "p",
     "icon": "i",
-    "div": "div"
+    "div": "div",
+    "background":"body",
+    "image": "img",
+    "checkbox": "input",
+    "radio": "input"
 }
 
-ICON_NAME = {
-    "traingle-down": "arrow_drop_down",
-    "traingle-up": "arrow_drop_up",
-    "right-arrow": "chevron-right",
-    "left-arrow": "chevron-left",
-    "dash": "horizontal-rule"
-}
+# ICON_NAME = {
+#     "triangle-down": "arrow_drop_down",
+#     "triangle-up": "arrow_drop_up",
+#     "right-arrow": "chevron-right",
+#     "left-arrow": "chevron-left",
+#     "up-arrow": "arrow_drop_up",
+#     "down-arrow": "arrow_drop_down",
+#     "dash": "horizontal-rule"
+# }
 
 def jsonComponentsToHtmlString(components):
     doc, tag, text = Doc().tagtext()
@@ -22,8 +28,8 @@ def jsonComponentsToHtmlString(components):
         with tag('head'):
             # We use google material icons
             doc.asis('<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">')
-        with tag('body'):
-            for component in components:
+        with tag('body', style=f"{components[0]["properties"]["color"]}"):    #first element in components is background
+            for component in components[1:]:
                 # Add generic styling elements
                 component_style = f"""
                     position: fixed;
@@ -38,12 +44,14 @@ def jsonComponentsToHtmlString(components):
                     if prop != "text":
                         # Set the border-radius (of a div) based on the smallest side (assuming true size isn't mentioned in the JSON)
                         if prop == "border-radius":
-                            radius = int(min(component["height"], component["width"])/2)
-                            component_style += f"{prop}: {radius}px"
+                            # radius = int(min(component["height"], component["width"])/2)
+                            component_style += f"{prop}: {component["properties"]["border-radius"]}px"
                         else:
                             component_style += f"{prop}: {component['properties'][prop]}"
                     if prop.endswith("size"):
                         component_style += "px"
+                    else:
+                        component_style += f"{prop}: {component['properties'][prop]}"
                     component_style += "; "
 
                 # Icon components are dealt with differently because they need a separate class
@@ -51,12 +59,20 @@ def jsonComponentsToHtmlString(components):
                     with tag(COMPONENT_TO_TAG[component["element"]], style=component_style, klass="material-icons"):
                         txt = ICON_NAME[component["properties"]["image"]]
                         text(txt)
+
+                elif component["element"] == "image":
+                    doc.stag(COMPONENT_TO_TAG[component["element"]], src="dummy.jpg", height=f"{str(component["height"])}px", width=f"{str(component["width"])}px", style=f"padding:2px;background-color:{ component["properties"]["background-color"]}") 
+
+                elif component["element"] == "checkbox" or component["element"] == "radio":
+                    doc.tag(COMPONENT_TO_TAG[component["element"]] , type=component["element"])    
+
+                elif component["element"] == "text":
+                    with tag(COMPONENT_TO_TAG[component["element"]], style=component_style):                      
+                        text(component["properties"]["text"])              
+
                 else:
-                    with tag(COMPONENT_TO_TAG[component["element"]], style=component_style):
-                        txt = ""
-                        if "text" in component["properties"].keys():
-                            txt = component["properties"]["text"]
-                        text(txt)
+                    doc.tag(COMPONENT_TO_TAG[component["element"]], style=component_style):
+                        
     return indent(doc.getvalue())
 
 
