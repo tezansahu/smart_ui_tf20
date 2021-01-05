@@ -23,13 +23,20 @@ Clone the Repository:
 > cd smart_ui_tf20/
 ```
 
-> _**Note:** The installation of dependenices & running of app works best in Anaconda with Python 3.7_
+Create & activate a virtual environment in Anaconda:
+
+```console
+> conda create -n smartui python=3.7
+> conda activate smartui
+```
+
+> _**Note:** The installation of dependenices & running of app works best in Anaconda with Python 3.7 & `tensorflow=2.3.1`_
 
 Install the dependencies:
 
 ```console
-> conda install -c conda-forge --file requirements.txt
-> pip install keras-ocr
+(smartui)> conda install -c conda-forge --file requirements.txt
+(smartui)> pip install keras-ocr
 ```
 
 > _**Note:** Since `keras-ocr` is not found in any of the Anaconda channels, it has to be installed separately as mentioned above._
@@ -37,15 +44,15 @@ Install the dependencies:
 Download necessary models & repositories for running the app:
 
 ```console
-> python models/download_models.py   # Download the models to be used by the app
-> git clone https://github.com/tesseract-ocr/tessdata.git ./app/tessdata/   # Clone the tessdata/ for legacy OCR being used in the app
+(smartui)> python models/download_models.py   # Download the models to be used by the app
+(smartui)> git clone https://github.com/tesseract-ocr/tessdata.git ./app/tessdata/   # Clone the tessdata/ for legacy OCR being used in the app
 ```
 
 Start the app:
 
-```condole
-> cd app/
-> streamlit run app.py
+```console
+(smartui)> cd app/
+(smartui)> streamlit run app.py
 ```
 
 This should start the app on `localhost` & fire up a tab in the browser
