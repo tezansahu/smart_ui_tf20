@@ -30,15 +30,18 @@ For every class predicted by the deep learning model, following attributes are e
     - background-color
 
 ### Colors
-Color pallette is extracted using the `getcolors()` method in the `Pillow` library. The color with the most pixels is cited as the background-color attribute and the color with the second most pixels is cited as the color attribute.
+Color pallette is extracted using the `getcolors()` method in the `Pillow` library. The color attributes are of two types -
+
+- `background-color` : color of the highest number of pixels
+-  `color` : color of the second highest number of pixels
 
 ### Font-Related Properties
 `PyTessBaseAPI` exposes several tesseract API methods which are used to extract the font-related properties of the `tesserocr`-recognised text. Following is a description of the font properties that are extracted - 
 
-- `font-size`: states the font-size of the text
-- `font-family`: states the font of the text
-- `font-weight`: states if the text is bold.
-- `font-style`: states if the text is italic.
-- `text-decoration`: states if the text is underlined.
+- `font-size` : states the font-size of the text
+- `font-family` : states the font of the text
+- `font-weight` : states if the text is bold.
+- `font-style` : states if the text is italic.
+- `text-decoration` : states if the text is underlined.
 
 ---
