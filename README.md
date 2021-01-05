@@ -10,7 +10,7 @@ Generate a JSON file (`output.json`) from the screenshot of the wireframe. The f
 
 ## Our Solution
 
-![App Screenshot](assets/images/ui_screenshot_1.JPG)
+![App Demo](assets/images/demo.gif)
 
 ### Overview: [TODO]
 
