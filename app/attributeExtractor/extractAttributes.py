@@ -153,7 +153,7 @@ def extractAttributes(image, jsonfile):
             pass
 
         elif(label=="scroll"):
-            properties['color'] = bgcolor
+            properties['background-color'] = bgcolor
             
         elif(label=="Background"):
             properties['background-color'] = bgcolor

@@ -12,11 +12,23 @@ Generate a JSON file (`output.json`) from the screenshot of the wireframe. The f
 
 ![App Demo](assets/images/demo.gif)
 
-### Overview: [TODO]
+### Overview:
 
-[Include a short writeup of the pipeline - adding a block diagram would be nice (block names to be same as the titles of the respecive Readme files)]
+<!-- [Include a short writeup of the pipeline - adding a block diagram would be nice (block names to be same as the titles of the respecive Readme files)]
 
-[Mention the names of the different blocks in a list & link them to the corresponding sections in this readme (see below)]
+[Mention the names of the different blocks in a list & link them to the corresponding sections in this readme (see below)] -->
+We use a three stage pipeline to generate a JSON file containing the attributes of all the components in the input wireframe image. We then render the JSON output into an HTML file. 
+
+<p align="center">
+  <img src='assets/images/pipeline.png' />
+</p>
+
+The pipeline, as shown in the figure, comprises of the following stages - 
+
+- [UI Component Detection & Classification](#UI-Component-Detection-&-Classification)
+- [Text & Attribute Extraction for Identified Components](#Text-&-Attribute-Extraction-for-Identified-Components)
+- [HTML Generation from JSON](#HTML-Generation-from-JSON-_(Bonus)_)
+
 
 ---
 
