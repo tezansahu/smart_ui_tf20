@@ -144,7 +144,7 @@ def submit_clicked(value, uploaded_img_file, options, show_json, show_html):
 
 			# Attribute Extraction
 			print("Starting attribute extraction")
-			attr_extr_statement = "python {repo_root}/app/extractAttributes/extractAttributes.py --img {img} --json {json}".format(
+			attr_extr_statement = "python {repo_root}/app/attributeExtractor/extractAttributes.py --img {img} --json {json}".format(
 				repo_root=repo_root,
 				img=img_filename,
 				json="compo.json"
@@ -153,7 +153,7 @@ def submit_clicked(value, uploaded_img_file, options, show_json, show_html):
 
 			# HTML Rendering
 			print("Starting HTML Rendering")
-			html_render_statement = "python {repo_root}/app/htmlRender/jsonToHtml.py --json {json} --html {html}".format(
+			html_render_statement = "python {repo_root}/app/htmlGenerator/jsonToHtml.py --json {json} --html {html}".format(
 				repo_root=repo_root,
 				json="compo.json",
 				html="output.html"
