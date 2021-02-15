@@ -98,14 +98,19 @@ def delete_temp_files(img_filename):
 	delete_file("ip/" + img_filename.replace("png", "json"))
 	delete_file("compo.json")
 	delete_file("result.jpg")
+	delete_file("output.html")
 	delete_file("ip/result.jpg")
 	shutil.rmtree("ip")
 
 # Display the results (JSON & HTML) of the component detection process
-def display_result(json_data, html_file, show_json, show_html):
+def display_result(json_data, html_file, options, show_json, show_html):
 
 	download_json_btn_str = download_json_button(json_data)
-	download_html_btn_str = download_html_button(html_file)
+	if options["cnn_model"] == "cnn-generalized":
+		download_html_btn_str = download_html_button(html_file)
+	else:
+		download_html_btn_str = ""
+
 	
 	buttons_str = f"{download_json_btn_str}{download_html_btn_str}"
 	st.markdown(buttons_str, unsafe_allow_html=True)
@@ -152,13 +157,16 @@ def submit_clicked(value, uploaded_img_file, options, show_json, show_html):
 			os.system(attr_extr_statement)
 
 			# HTML Rendering
-			print("Starting HTML Rendering")
-			html_render_statement = "python {repo_root}/app/htmlGenerator/jsonToHtml.py --json {json} --html {html}".format(
-				repo_root=repo_root,
-				json="compo.json",
-				html="output.html"
-			)
-			os.system(html_render_statement)
+			if options["cnn_model"] == "cnn-generalized":
+				print("Starting HTML Rendering")
+				html_render_statement = "python {repo_root}/app/htmlGenerator/jsonToHtml.py --json {json} --html {html}".format(
+					repo_root=repo_root,
+					json="compo.json",
+					html="output.html"
+				)
+				os.system(html_render_statement)
+			else:
+				show_html = False
 
 			st.success('Completed Processing!')
 
@@ -171,7 +179,7 @@ def submit_clicked(value, uploaded_img_file, options, show_json, show_html):
 			# Dummy HTML rendering of the wireframe image
 			html_file = "output.html"
 
-			display_result(json_data, html_file, show_json, show_html)
+			display_result(json_data, html_file, options, show_json, show_html)
 
 			delete_temp_files(img_filename)
 
