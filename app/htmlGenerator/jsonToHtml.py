@@ -30,6 +30,8 @@ def jsonComponentsToHtmlString(components):
             doc.asis('<meta name="viewport" content="width=device-width, initial-scale=1.0">')
         with tag('body', style=f"background-color: {components[0]['properties']['background-color']}"):    #first element in components is background
             for i, component in enumerate(components[1:]):
+                is_button = False
+
                 # Add generic styling elements
                 component_style = f"""
                     position: fixed;
@@ -45,8 +47,11 @@ def jsonComponentsToHtmlString(components):
                         if prop != "text":
                             # Set the border-radius (of a div) based on the smallest side (assuming true size isn't mentioned in the JSON)
                             if prop == "border-radius":
-                                # radius = int(min(component["height"], component["width"])/2)
                                 component_style += f"{prop}: {component['properties']['border-radius']}px"
+
+                                # Using a heuristic that a rounded div generally corresponds to a clickable button
+                                is_button = True
+                                component_style += "; cursor: pointer"
                             else:
                                 component_style += f"{prop}: {component['properties'][prop]}"
                         if prop.endswith("size"):
@@ -73,8 +78,13 @@ def jsonComponentsToHtmlString(components):
                             text(component["properties"]["text"])              
 
                 elif component["element"] == "div":
-                    with doc.tag(COMPONENT_TO_TAG[component["element"]], style=component_style + "z-index: -1;"):
-                        text("")
+                    if is_button:
+                        # If the div is a button, add an 'onClick' attribute 
+                        with doc.tag(COMPONENT_TO_TAG[component["element"]], style=component_style + "z-index: -1;", onclick="location.href='#';"):
+                            text("")
+                    else:
+                        with doc.tag(COMPONENT_TO_TAG[component["element"]], style=component_style + "z-index: -1;"):
+                            text("")
 
                 else:
                     pass    

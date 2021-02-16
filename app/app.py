@@ -185,6 +185,13 @@ def submit_clicked(value, uploaded_img_file, options, show_json, show_html):
 
 
 def main():
+	st.set_page_config(
+        page_title="Smart UI",
+        page_icon="🌐",
+        layout="centered",
+        initial_sidebar_state="expanded"
+    )
+
 	st.title('Smart UI')
 	st.subheader('Techfest 2020-21')
 
