@@ -2,6 +2,7 @@ import os
 import cv2
 import json
 from PIL import Image
+import extcolors
 import tesserocr
 from tesserocr import PyTessBaseAPI, OEM
 import keras_ocr
@@ -103,9 +104,12 @@ def extractAttributes(image, jsonfile):
         
         # extracting colors from image
         try:
-            colors = sorted(im_pil.getcolors())
-            bgcolor = '#%02x%02x%02x' % colors[-1][1]
-            forecolor = '#%02x%02x%02x' % colors[-2][1]
+            # colors = sorted(im_pil.getcolors())
+            # bgcolor = '#%02x%02x%02x' % colors[-1][1]
+            # forecolor = '#%02x%02x%02x' % colors[-2][1]
+            colors, _ = extcolors.extract_from_image(im_pil)
+            bgcolor = '#%02x%02x%02x' % colors[0][0]
+            forecolor = '#%02x%02x%02x' % colors[1][0]
         except Exception:
             # default colors
             bgcolor = "#fff"

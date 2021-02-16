@@ -36,7 +36,7 @@ Install the dependencies:
 
 ```console
 (smartui)> conda install -c conda-forge --file requirements.txt
-(smartui)> pip install keras-ocr
+(smartui)> pip install keras-ocr extcolors
 ```
 
 > _**Note:** Since `keras-ocr` is not found in any of the Anaconda channels, it has to be installed separately as mentioned above._
